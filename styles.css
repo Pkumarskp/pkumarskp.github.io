@@ -355,3 +355,61 @@ footer .social-links li a {
 footer p {
     font-size: 0.9rem;
 }
+@media (max-width: 768px) {
+    nav .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav ul {
+        flex-direction: column;
+        padding: 0;
+    }
+
+    nav ul li {
+        margin: 5px 0;
+    }
+
+    .hero-section {
+        padding: 40px 10px;
+    }
+
+    .project {
+        padding: 15px;
+    }
+
+    .section-title {
+        font-size: 2em;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section h2 {
+        font-size: 1.8em;
+    }
+
+    .hero-section h3 {
+        font-size: 1.4em;
+    }
+
+    .project h3 {
+        font-size: 1.6em;
+    }
+
+    .project p {
+        font-size: 1em;
+    }
+
+    .skills-list li {
+        font-size: 0.9em;
+    }
+
+    .footer {
+        font-size: 0.9em;
+    }
+}
