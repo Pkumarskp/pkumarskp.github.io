@@ -490,3 +490,17 @@ footer p {
         text-align: center;
     }
 }
+@keyframes slide-in {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-in {
+    animation: slide-in 0.5s ease forwards;
+}
