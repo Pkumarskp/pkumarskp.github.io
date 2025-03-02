@@ -5,167 +5,356 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parshuram Kumar - Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            /* Dark background */
+            color: #ffffff;
+            /* White text */
+        }
+
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('assets/images/header-bg.jpg') no-repeat center center/cover;
+            animation: backgroundAnimation 10s infinite alternate;
+            z-index: 1;
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.05);
+            }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-in-out forwards;
+            opacity: 0;
+        }
+
+        .animate-float {
+            animation: float 4s infinite ease-in-out;
+        }
+
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-400 {
+            animation-delay: 0.4s;
+        }
+    </style>
+
 </head>
 
 <body>
-     <!-- Bootstrap JS and dependencies (Popper.js) -->
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
-    <nav>
-        <div class="container">
-            <h1 class="logo">Parshuram Kumar</h1>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="menu-toggle" id="mobile-menu">
-                <i class="fas fa-bars"></i>
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a class="text-white text-lg font-bold" href="#">Parshuram Kumar</a>
+            <div class="hidden md:flex space-x-4">
+                <a class="text-gray-300 hover:text-white" href="#about">About</a>
+                <a class="text-gray-300 hover:text-white" href="#projects">Projects</a>
+                <a class="text-gray-300 hover:text-white" href="#contact">Contact</a>
             </div>
         </div>
     </nav>
 
-    <header class="hero-section">
-        <div class="container">
-            <h2 class="fade-in">Hello, I'm Parshuram Kumar</h2>
-            <h3 class="slide-in">I build things for the web.</h3>
-            <p class="fade-in">I'm a Software Engineer with over 2.6 years of experience specializing in building and
-                designing exceptional digital experiences.</p>
-            <a href="#projects" class="btn pulse">View My Work</a>
+    <section class="relative w-full h-screen flex items-center justify-center text-white bg-gray-900 overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img src="assets/images/hero-background.svg" alt="Hero Background"
+                class="w-full h-full object-cover opacity-30" />
         </div>
-    </header>
 
-    <section id="about" class="about-section">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <p class="fade-in">I'm a passionate software engineer with expertise in web development. I enjoy creating
-                things that live on the internet, whether that be websites, applications, or anything in between. My
-                goal is to always build products that provide pixel-perfect, performant experiences.</p>
-            <p class="fade-in">Here are a few technologies I've been working with recently:</p>
-            <ul class="skills-list fade-in">
-                <li>JavaScript (ES6+)</li>
-                <li>Angular</li>
-                <li>ReactJS</li>
-                <li>Node.js</li>
-                <li>PHP & Laravel</li>
-                <li>MySQL & MongoDB</li>
-                <li>OutSystems</li>
-            </ul>
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight animate-fade-in-up">
+                Hey, I'm <span class="text-yellow-400">Parshuram Kumar</span>
+            </h1>
+            <p class="text-lg md:text-2xl py-5 px-5 animate-fade-in-up delay-200">
+               I Am <span id="animated-text" class="text-blue-400 font-semibold"></span>
+            </p>
+            <a href="#projects"
+                class="bg-blue-500 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-900 transition transform hover:scale-105 animate-fade-in-up delay-400">
+                View My Work
+            </a>
         </div>
+
+        <!-- Floating Particles Animation -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <svg class="absolute top-10 left-10 w-12 h-12 animate-float" fill="yellow" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"></circle>
+            </svg>
+            <svg class="absolute bottom-20 right-20 w-8 h-8 animate-float delay-200" fill="lightblue"
+                viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="4"></circle>
+            </svg>
+            
+        </div>
+
     </section>
 
-    <section id="projects" class="projects-section">
-        <div class="container">
-            <h2 class="section-title">Some Things I've Built</h2>
-            <div class="row">
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">Putpocketi</h3>
-                            <p class="card-text">Create a website where users can recharge their phones or TVs using wallet balance.</p>
-                        </div>
-                    </div>
+
+
+    <section id="about" class="py-16 bg-gray-900 text-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl font-extrabold mb-6 animate-fade">About Me</h2>
+            <div class="flex flex-wrap justify-center gap-6">
+                <!-- Card 1 -->
+                <div class="group relative bg-gray-800 p-8 rounded-lg w-80 shadow-lg transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-400 opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-lg"></div>
+                    <h5 class="text-2xl font-semibold mb-3">Who I Am</h5>
+                    <p class="text-gray-300">I am a passionate software engineer with expertise in web development, working on diverse projects that involve front-end and back-end technologies.</p>
                 </div>
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">HelloHungry Meals</h3>
-                            <p class="card-text">A system for users to buy food online using Laravel and MySQL.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">Skill Berry</h3>
-                            <p class="card-text">A job portal with AI-generated job proposals using Laravel and ChatGPT.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">Employee Management Admin Panel</h3>
-                            <p class="card-text">A comprehensive employee management system using OutSystems and implemented Dynamic form development.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">Moodle Integration</h3>
-                            <p class="card-text">Integration of Moodle with GEMS to synchronize student information and course enrollment using PHP and RESTful APIs.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 my-2">
-                    <div class="card slide-in">
-                        <div class="card-body">
-                            <h3 class="card-title">Blog Management Application</h3>
-                            <p class="card-text">A user management system with full CRUD functionality for complex user profiles and permissions using ReactJS, Node.js, and MongoDB.</p>
-                        </div>
-                    </div>
+                <!-- Card 2 -->
+                <div class="group relative bg-gray-800 p-8 rounded-lg w-80 shadow-lg transform transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-lg"></div>
+                    <h5 class="text-2xl font-semibold mb-3">What I Do</h5>
+                    <p class="text-gray-300">My focus is on building scalable, efficient, and user-friendly applications using modern frameworks and technologies.</p>
                 </div>
             </div>
         </div>
     </section>
     
+    
 
-    <section id="experience" class="experience-section">
-        <div class="container">
-            <h2 class="section-title">Where I've Worked</h2>
-            <div class="experience fade-in">
-                <h3>Associate Software Engineer</h3>
-                <p>Silicon Valley Infomedia Pvt Ltd | February 2022 - Present</p>
-                <div class="container">
-                    <ul>
-                        <li>Led the development and maintenance of high-performance web applications using PHP and
-                            Laravel.</li>
-                        <li>Engineered RESTful APIs for seamless integration with third-party services.</li>
-                        <li>Optimized database operations using MySQL and MongoDB to ensure data integrity and
-                            performance.</li>
-                        <li>Collaborated with product managers and designers to deliver user-friendly and responsive
-                            interfaces.</li>
-                        <li>Mentored junior developers and conducted code reviews to maintain high coding standards.
-                        </li>
-                    </ul>
+    <section id="skills" class="py-10 bg-gray-800 text-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl mb-6 font-bold">My Skills</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">HTML5</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-800 h-2 rounded-full" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">CSS3</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-700 h-2 rounded-full" style="width: 75%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">JavaScript</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-900 h-2 rounded-full" style="width: 90%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">PHP</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-800 h-2 rounded-full" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">Laravel</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-900 h-2 rounded-full" style="width: 90%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">ReactJs</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 60%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">Angular</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 50%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">NodeJs</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 50%;"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md">
+                    <h5 class="text-xl font-semibold mb-2">MySQL</h5>
+                    <div class="bg-gray-600 h-2 rounded-full">
+                        <div class="bg-blue-800 h-2 rounded-full" style="width: 80%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <p class="fade-in">I'm currently open to new opportunities. Whether you have a question or just want to say
-                hi, feel free to reach out!</p>
-            <a href="mailto:pkumarskp4@gmail.com" class="btn pulse">Say Hello</a>
+
+    <section id="projects" class="py-10">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl mb-4">Some Things I've Built</h2>
+            <div class="flex flex-wrap justify-center">
+                <!-- Putpocketi -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/putpocketi.png" class="rounded-t-lg" alt="Project 1">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">Putpocketi</h5>
+                        <p>A web application designed for seamless transactions and digital wallet management.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: PHP, Bootstrap, JavaScript</p>
+                    </div>
+                </div>
+            
+                <!-- Hello Hungry Meal -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/hellohungrymeals.png" class="rounded-t-lg" alt="Project 2">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">Hello Hungry Meal</h5>
+                        <p>An online food ordering platform offering a seamless user experience.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: Laravel, Bootstrap, JavaScript</p>
+                    </div>
+                </div>
+            
+                <!-- Skillberry -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/skillberry.png" class="rounded-t-lg" alt="Project 3">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">Skillberry</h5>
+                        <p>A platform that connects learners with skilled professionals for online courses.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: Laravel, Bootstrap, JavaScript</p>
+                    </div>
+                </div>
+            
+                <!-- VoIP -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/voip.png" class="rounded-t-lg" alt="Project 4">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">VoIP</h5>
+                        <p>A telecommunication service providing VoIP-based solutions for businesses.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: Laravel, Bootstrap, JavaScript</p>
+                    </div>
+                </div>
+            
+                <!-- Voice of Middle Class -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/voiceofmiddleclass.png" class="rounded-t-lg" alt="Project 5">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">Voice of Middle Class</h5>
+                        <p>A social platform dedicated to discussing middle-class concerns and solutions.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: Laravel, ReactJS, JavaScript</p>
+                    </div>
+                </div>
+            
+                <!-- JK Digital Solutions -->
+                <div class="bg-gray-700 p-4 rounded-lg m-2 w-80">
+                    <img src="assets/images/jkdigitalsolutions.png" class="rounded-t-lg" alt="Project 6">
+                    <div class="p-4">
+                        <h5 class="text-xl font-semibold">JK Digital Solutions</h5>
+                        <p>A digital marketing and business solutions platform for enterprises.</p>
+                        <p class="text-sm text-yellow-400">Tech Used: Wordpress</p>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <ul class="social-links">
-                <li><a href="https://www.linkedin.com/in/parshuram-kumar-25b8ba171/" target="_blank" class="btn">Visit
-                        My LinkedIn</a></li>
-                <!-- <li><a href="#"><i class="fab fa-github"></i></a></li> -->
-                <!-- <li><a href="#"><i class="fab fa-twitter"></i></a></li> -->
-            </ul>
-            <p>&copy; 2024 Parshuram Kumar. All rights reserved.</p>
+    <section id="contact" class="py-10 bg-gray-800">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl mb-4">Get In Touch</h2>
+            <p class="py-5 px-5">I'm currently open to new opportunities. Let's connect!</p>
+            <a href="mailto:pkumarskp4@gmail.com"
+                class="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-400 transition">Say Hello</a>
         </div>
+    </section>
+
+    <footer class="py-3 text-center bg-gray-800">
+        <p>&copy; 2024 Parshuram Kumar. All rights reserved.</p>
     </footer>
+
 </body>
 <script>
-    document.getElementById('mobile-menu').addEventListener('click', function () {
-        const navLinks = document.querySelector('.nav-links');
-        navLinks.classList.toggle('active');
-    });
+    const roles = ["a Software Engineer.", "a Web Developer.", "a Frontend Developer.", "a Backend Developer."];
+    let index = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const speed = 100;
+    const delay = 1500;
+    const textElement = document.getElementById("animated-text");
+
+    function typeEffect() {
+        const currentRole = roles[index];
+        if (isDeleting) {
+            textElement.textContent = currentRole.substring(0, charIndex--);
+        } else {
+            textElement.textContent = currentRole.substring(0, charIndex++);
+        }
+
+        if (!isDeleting && charIndex === currentRole.length) {
+            isDeleting = true;
+            setTimeout(typeEffect, delay);
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            index = (index + 1) % roles.length;
+            setTimeout(typeEffect, speed);
+        } else {
+            setTimeout(typeEffect, isDeleting ? speed / 2 : speed);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", typeEffect);
 </script>
 </html>
