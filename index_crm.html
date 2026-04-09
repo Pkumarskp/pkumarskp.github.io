@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment CRM | Professional SaaS Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark-glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .active-nav {
+            @apply bg-indigo-600 text-white shadow-lg shadow-indigo-200;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 overflow-hidden" x-data="crmApp" x-cloak>
+
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transition-transform duration-300 lg:translate-x-0"
+           :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+        <div class="flex flex-col h-full">
+            <!-- Logo -->
+            <div class="p-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-indigo-200 shadow-lg">
+                        <i data-lucide="briefcase" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl tracking-tight text-slate-800">Recruit<span class="text-indigo-600">CRM</span></h1>
+                        <p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Enterprise Hub</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
+                <template x-for="item in navItems" :key="item.id">
+                    <button @click="currentModule = item.id; sidebarOpen = false"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group"
+                            :class="currentModule === item.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'">
+                        <i :data-lucide="item.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                        <span class="font-medium" x-text="item.label"></span>
+                    </button>
+                </template>
+                
+                <div class="pt-8 pb-4">
+                    <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Systems</p>
+                    <template x-for="item in systemNavItems" :key="item.id">
+                        <button @click="currentModule = item.id; sidebarOpen = false"
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group"
+                                :class="currentModule === item.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'">
+                            <i :data-lucide="item.icon" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                            <span class="font-medium" x-text="item.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </nav>
+
+            <!-- User Profile Bottom -->
+            <div class="p-4 border-t border-slate-100">
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff" alt="User" class="w-10 h-10 rounded-lg">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">Alex Sterling</p>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
+                            Admin
+                        </span>
+                    </div>
+                    <i data-lucide="more-vertical" class="w-4 h-4 text-slate-400"></i>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 h-screen flex flex-col transition-all duration-300">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3 shrink-0">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <button @click="sidebarOpen = true" class="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div class="relative hidden sm:block">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" placeholder="Search leads..." class="pl-10 pr-4 py-2 bg-slate-100/50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl text-sm w-64 transition-all">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Today</p>
+                        <p class="text-xs font-semibold text-slate-800" x-text="todayDate"></p>
+                    </div>
+                    <div class="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
+                    <button class="relative p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+                    </button>
+                    <button @click="showAddLeadModal = true" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center gap-2 ml-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Quick Add</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <div class="flex-1 p-4 sm:p-8 overflow-y-auto bg-slate-50/50">
+            
+            <!-- Dashboard Module -->
+            <section x-show="currentModule === 'dashboard'" class="fade-in space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Recruitment Dashboard</h2>
+                        <p class="text-slate-500">Welcome back, Alex. Here's what's happening today.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold border border-indigo-200">Admin</span>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">Executive</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <template x-for="stat in stats" :key="stat.label">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-colors" :class="stat.bg">
+                                    <i :data-lucide="stat.icon" class="w-6 h-6" :class="stat.color"></i>
+                                </div>
+                                <span class="flex items-center gap-1 text-xs font-bold" :class="stat.trend > 0 ? 'text-emerald-600' : 'text-rose-600'">
+                                    <i :data-lucide="stat.trend > 0 ? 'trending-up' : 'trending-down'" class="w-4 h-4"></i>
+                                    <span x-text="Math.abs(stat.trend) + '%'"></span>
+                                </span>
+                            </div>
+                            <h3 class="text-slate-500 text-sm font-medium" x-text="stat.label"></h3>
+                            <p class="text-2xl font-bold text-slate-800 mt-1" x-text="stat.value"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-bold text-slate-800">Revenue Performance</h3>
+                            <select class="bg-slate-50 border-none text-xs font-bold text-slate-500 rounded-lg px-3 py-1.5 focus:ring-0">
+                                <option>Last 6 Months</option>
+                                <option>Last 12 Months</option>
+                            </select>
+                        </div>
+                        <div class="h-[300px]">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-6">Conversions by Source</h3>
+                        <div class="h-[300px] flex items-center justify-center">
+                            <canvas id="conversionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lead Management Module -->
+            <section x-show="currentModule === 'leads'" class="fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Lead Management</h2>
+                        <p class="text-slate-500">Manage and track your recruitment leads effectively.</p>
+                    </div>
+                    <button @click="showAddLeadModal = true" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        Add New Lead
+                    </button>
+                </div>
+
+                <!-- Filters & Search -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-wrap items-center gap-4">
+                    <div class="flex-1 min-w-[240px] relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" x-model="leadFilters.search" placeholder="Search by name, email..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl text-sm transition-all">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Status:</span>
+                        <select x-model="leadFilters.status" class="bg-slate-50 border-none text-sm font-semibold text-slate-700 rounded-xl px-4 py-2 focus:ring-4 focus:ring-indigo-50">
+                            <option value="All">All Statuses</option>
+                            <template x-for="status in leadStatuses" :key="status">
+                                <option :value="status" x-text="status"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-xl border border-slate-100 transition-colors">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Leads Table -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 border-b border-slate-100">
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Lead Info</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Location</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Assigned To</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Source</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <template x-for="lead in filteredLeads()" :key="lead.id">
+                                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <img :src="lead.avatar" class="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-sm">
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-800" x-text="lead.name"></p>
+                                                    <p class="text-xs text-slate-400" x-text="lead.email"></p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                                <span x-text="lead.location"></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border" :class="getStatusColor(lead.status)" x-text="lead.status"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-medium text-slate-600" x-text="lead.assignedTo"></td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg" x-text="lead.source"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <button @click="openLeadDetail(lead)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination Placeholder -->
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                        <p class="text-xs font-medium text-slate-400">Showing 50 leads</p>
+                        <div class="flex gap-2">
+                            <button class="p-2 border border-slate-100 rounded-lg text-slate-400 cursor-not-allowed"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <button class="p-2 border border-slate-100 rounded-lg hover:bg-slate-50 text-slate-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Candidate Detail Module (Requirement #5) -->
+            <section x-show="currentModule === 'candidate-detail'" class="fade-in space-y-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <button @click="currentModule = 'leads'" class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm text-slate-500 hover:text-indigo-600 transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Candidate Profile</h2>
+                        <nav class="flex gap-2 text-sm text-slate-400 font-medium">
+                            <span>Leads</span>
+                            <span>/</span>
+                            <span class="text-indigo-600" x-text="selectedLead?.name"></span>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Profile Card -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                            <img :src="selectedLead?.avatar" class="w-24 h-24 rounded-3xl mx-auto mb-4 border-4 border-indigo-50 shadow-md">
+                            <h3 class="text-xl font-bold text-slate-800" x-text="selectedLead?.name"></h3>
+                            <p class="text-sm text-slate-400 mb-4" x-text="selectedLead?.email"></p>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold border block mb-6" :class="getStatusColor(selectedLead?.status)" x-text="selectedLead?.status"></span>
+                            
+                            <div class="space-y-3 pt-6 border-t border-slate-50">
+                                <button class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-100 hover:scale-[1.02] transition-transform">Send Email</button>
+                                <button class="w-full bg-white text-slate-700 py-2.5 border border-slate-200 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">Schedule Call</button>
+                            </div>
+                        </div>
+
+                        <!-- Basic Info Card -->
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                            <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Quick Info</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-400">Phone</span>
+                                    <span class="font-bold text-slate-700" x-text="selectedLead?.contact"></span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-400">Visa Status</span>
+                                    <span class="font-bold text-slate-700" x-text="selectedLead?.visa"></span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-400">EAD Authorized</span>
+                                    <span class="font-bold text-slate-700" x-text="selectedLead?.ead"></span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-400">Source</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-bold text-slate-500" x-text="selectedLead?.source"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Tabs Area -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <!-- Tab Header -->
+                        <div class="bg-white p-1 rounded-2xl border border-slate-100 flex overflow-x-auto relative">
+                            <template x-for="tab in ['Overview', 'Activity Timeline', 'Applications', 'Interviews', 'Documents', 'Financial']" :key="tab">
+                                <button @click="activeDetailTab = tab.toLowerCase().replace(' ', '-')"
+                                        class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center justify-center gap-2"
+                                        :class="activeDetailTab === tab.toLowerCase().replace(' ', '-') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'">
+                                    <span x-text="tab"></span>
+                                    <i x-show="tab === 'Financial'" :data-lucide="hasFinancialPermission ? 'unlock' : 'lock'" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm min-h-[500px]">
+                            
+                            <!-- Overview Tab -->
+                            <div x-show="activeDetailTab === 'overview'" class="fade-in space-y-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">LinkedIn Profile</label>
+                                        <div class="flex items-center gap-2">
+                                            <a href="#" class="text-indigo-600 font-semibold hover:underline" x-text="selectedLead?.linkedin"></a>
+                                            <button @click="confirm('Opening external link...')" class="text-slate-300 hover:text-indigo-600"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Portfolio</label>
+                                        <div class="flex items-center gap-2">
+                                            <a href="#" class="text-indigo-600 font-semibold hover:underline">portfolio-jdoe.com</a>
+                                            <button @click="confirm('Opening external link...')" class="text-slate-300 hover:text-indigo-600"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2 space-y-2">
+                                        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Remarks</label>
+                                        <p class="text-slate-600 leading-relaxed" x-text="selectedLead?.remarks"></p>
+                                    </div>
+                                </div>
+
+                                <div class="pt-8 border-t border-slate-50">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <h4 class="font-bold text-slate-800">Status Update Options</h4>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last updated: 4h ago</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        <button @click="alert('Follow-up schedule opened')" class="p-4 rounded-2xl border-2 border-indigo-50 bg-indigo-50/20 text-indigo-700 text-center hover:bg-indigo-50 transition-colors group">
+                                            <i data-lucide="calendar" class="w-6 h-6 mx-auto mb-2 transition-transform group-hover:scale-110"></i>
+                                            <p class="text-xs font-bold">Follow-up</p>
+                                        </button>
+                                        <button @click="alert('Marked as Not Interested')" class="p-4 rounded-2xl border-2 border-slate-50 bg-slate-50/20 text-slate-700 text-center hover:bg-slate-50 transition-colors group">
+                                            <i data-lucide="x-circle" class="w-6 h-6 mx-auto mb-2 transition-transform group-hover:scale-110"></i>
+                                            <p class="text-xs font-bold">Not Interested</p>
+                                        </button>
+                                        <button @click="alert('Voicemail logged')" class="p-4 rounded-2xl border-2 border-slate-50 bg-slate-50/20 text-slate-700 text-center hover:bg-slate-50 transition-colors group">
+                                            <i data-lucide="mic" class="w-6 h-6 mx-auto mb-2 transition-transform group-hover:scale-110"></i>
+                                            <p class="text-xs font-bold">Voice Mail</p>
+                                        </button>
+                                        <button @click="modalOpen = true" class="p-4 rounded-2xl border-2 border-emerald-50 bg-emerald-50/20 text-emerald-700 text-center hover:bg-emerald-50 transition-colors group">
+                                            <i data-lucide="check-circle" class="w-6 h-6 mx-auto mb-2 transition-transform group-hover:scale-110"></i>
+                                            <p class="text-xs font-bold">Closed</p>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activity Timeline -->
+                            <div x-show="activeDetailTab === 'activity-timeline'" class="fade-in space-y-6">
+                                <div class="flex items-center justify-between mb-8">
+                                    <h4 class="font-bold text-slate-800">Communication History</h4>
+                                    <button @click="alert('Opening full log...')" class="text-xs text-indigo-600 font-bold hover:underline">View All Activities</button>
+                                </div>
+                                <template x-for="act in [
+                                    { title: 'Technical Interview Scheduled', time: '2 hours ago', user: 'Sarah K.', icon: 'calendar', color: 'text-sky-600', bg: 'bg-sky-50' },
+                                    { title: 'Resume Downloaded', time: '5 hours ago', user: 'Mike J.', icon: 'download', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                                    { title: 'Initial Screening Completed', time: 'Yesterday', user: 'Alex S.', icon: 'check-circle', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                                    { title: 'Lead Sourced from LinkedIn', time: '2 days ago', user: 'System', icon: 'plus-circle', color: 'text-slate-600', bg: 'bg-slate-50' }
+                                ]" :key="act.title">
+                                    <div class="flex gap-4 group">
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-10 h-10 rounded-xl flex items-center justify-center border-2 border-white shadow-sm z-10" :class="act.bg">
+                                                <i :data-lucide="act.icon" class="w-5 h-5" :class="act.color"></i>
+                                            </div>
+                                            <div class="w-0.5 h-full bg-slate-100 -mt-2 group-last:hidden"></div>
+                                        </div>
+                                        <div class="pb-10 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-sm font-bold text-slate-800" x-text="act.title"></p>
+                                                <span class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-slate-50 rounded" x-text="act.time"></span>
+                                            </div>
+                                            <p class="text-xs text-slate-400 mt-1" x-text="'Performed by ' + act.user"></p>
+                                            <div class="mt-3 p-4 bg-slate-50 rounded-2xl text-xs text-slate-600 border border-slate-100 leading-relaxed">
+                                                Automated log entry for tracking candidate progression. Notes: Candidate was very responsive and demonstrated strong interest.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Applications Tab -->
+                            <div x-show="activeDetailTab === 'applications'" class="fade-in space-y-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-bold text-slate-800">Job Applications</h4>
+                                    <span class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-bold">3 Active Applications</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <template x-for="app in [
+                                        { role: 'Senior React Developer', company: 'TechFlow Inc.', portal: 'Indeed', status: 'In Review' },
+                                        { role: 'Frontend Architect', company: 'CloudScale', portal: 'LinkedIn', status: 'Technical Round' },
+                                        { role: 'Full Stack Engineer', company: 'Nexus AI', portal: 'Company Website', status: 'Screening' }
+                                    ]" :key="app.role">
+                                        <div class="p-5 rounded-2xl border border-slate-100 bg-white hover:border-indigo-200 transition-all flex items-center justify-between group shadow-sm">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-colors">
+                                                    <i data-lucide="briefcase" class="w-6 h-6"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-800" x-text="app.role"></p>
+                                                    <p class="text-xs text-slate-400" x-text="app.company + ' • Via ' + app.portal"></p>
+                                                </div>
+                                            </div>
+                                            <span class="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-[10px] font-bold border border-sky-100" x-text="app.status"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Interviews Tab -->
+                            <div x-show="activeDetailTab === 'interviews'" class="fade-in space-y-6">
+                                <h4 class="font-bold text-slate-800 mb-2">Interview Details</h4>
+                                <div class="space-y-4">
+                                    <template x-for="inv in [
+                                        { type: 'Technical Round', company: 'Nexus AI', date: 'April 12, 2024', time: '2:30 PM', interviewer: 'David Chen (CTO)' },
+                                        { type: 'HR Screening', company: 'CloudScale', date: 'April 15, 2024', time: '10:00 AM', interviewer: 'Sarah Miller (HR)' }
+                                    ]" :key="inv.type">
+                                        <div class="bg-slate-50 border border-slate-100 rounded-3xl p-6 flex flex-col md:flex-row gap-6 items-start">
+                                            <div class="bg-white p-3 rounded-2xl shadow-sm text-center min-w-[80px]">
+                                                <p class="text-[10px] uppercase font-bold text-slate-400">Apr</p>
+                                                <p class="text-xl font-bold text-slate-800" x-text="inv.date.split(' ')[1].replace(',', '')"></p>
+                                            </div>
+                                            <div class="flex-1 space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <h5 class="font-bold text-slate-800" x-text="inv.type"></h5>
+                                                    <span class="text-xs font-bold text-indigo-600" x-text="inv.time"></span>
+                                                </div>
+                                                <p class="text-sm text-slate-600" x-text="'Company: ' + inv.company"></p>
+                                                <div class="flex items-center gap-2 pt-2">
+                                                    <img :src="'https://ui-avatars.com/api/?name='+inv.interviewer" class="w-6 h-6 rounded-lg">
+                                                    <p class="text-xs font-medium text-slate-500" x-text="'Interviewing with ' + inv.interviewer"></p>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button @click="alert('Rescheduling...')" class="text-xs font-bold text-slate-400 hover:text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200">Reschedule</button>
+                                                <button @click="alert('Opening meeting...')" class="text-xs font-bold text-white bg-indigo-600 px-4 py-1.5 rounded-lg shadow-sm">Join Call</button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Documents Tab -->
+                            <div x-show="activeDetailTab === 'documents'" class="fade-in space-y-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-bold text-slate-800">Files & Assets</h4>
+                                    <button @click="alert('Uploading file...')" class="text-xs font-bold text-indigo-600 flex items-center gap-1.5"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload New</button>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <template x-for="doc in [
+                                        { name: 'Resume_Updated_2024.pdf', size: '1.2 MB', type: 'PDF' },
+                                        { name: 'Portfolio_Site_Screenshot.png', size: '2.5 MB', type: 'PNG' },
+                                        { name: 'Identity_Verification.doc', size: '850 KB', type: 'DOC' }
+                                    ]" :key="doc.name">
+                                        <div class="p-4 rounded-2xl border border-slate-100 flex items-center justify-between group hover:border-indigo-100 transition-all">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+                                                    <i :data-lucide="doc.type === 'PDF' ? 'file-text' : 'file'" class="w-5 h-5"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-bold text-slate-800 truncate max-w-[150px]" x-text="doc.name"></p>
+                                                    <p class="text-[10px] text-slate-400" x-text="doc.size"></p>
+                                                </div>
+                                            </div>
+                                            <button @click="alert('Downloading...')" class="p-2 text-slate-310 hover:text-indigo-600 transition-colors"><i data-lucide="download" class="w-4 h-4"></i></button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Financial Tab (Permissions Controlled) -->
+                            <div x-show="activeDetailTab === 'financial'" class="fade-in">
+                                <!-- Simulation Toggle (Only for prototyping) -->
+                                <div class="flex justify-end mb-6">
+                                    <button @click="hasFinancialPermission = !hasFinancialPermission" 
+                                            class="text-[10px] items-center gap-2 px-3 py-1.5 rounded-full font-bold border transition-all"
+                                            :class="hasFinancialPermission ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'">
+                                        <span x-text="hasFinancialPermission ? 'Revoke Access' : 'Simulate Admin Access'"></span>
+                                    </button>
+                                </div>
+
+                                <template x-if="!hasFinancialPermission">
+                                    <div class="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                                        <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mb-2">
+                                            <i data-lucide="lock" class="w-10 h-10"></i>
+                                        </div>
+                                        <h4 class="text-xl font-bold text-slate-800">Access Restricted</h4>
+                                        <p class="text-slate-500 max-w-sm">"You do not have permission to view financial data." Please contact your system administrator to request access.</p>
+                                        <button @click="alert('Access request sent!')" class="mt-4 px-6 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors">Request Access</button>
+                                    </div>
+                                </template>
+
+                                <template x-if="hasFinancialPermission">
+                                    <div class="space-y-8 fade-in">
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                            <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
+                                                <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Expected Revenue</p>
+                                                <p class="text-2xl font-bold text-indigo-700 mt-1">$4,500</p>
+                                            </div>
+                                            <div class="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100">
+                                                <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Paid Amount</p>
+                                                <p class="text-2xl font-bold text-emerald-700 mt-1">$1,200</p>
+                                            </div>
+                                            <div class="bg-amber-50/50 p-6 rounded-3xl border border-amber-100">
+                                                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Pending</p>
+                                                <p class="text-2xl font-bold text-amber-700 mt-1">$3,300</p>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <h4 class="font-bold text-slate-800">Payment Breakdown</h4>
+                                            <table class="w-full text-left">
+                                                <thead class="bg-slate-50 rounded-xl">
+                                                    <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                        <th class="px-4 py-3">Installment</th>
+                                                        <th class="px-4 py-3">Due Date</th>
+                                                        <th class="px-4 py-3">Status</th>
+                                                        <th class="px-4 py-3 text-right">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-50">
+                                                    <tr><td class="px-4 py-3 text-sm font-medium">1st (Upfront)</td><td class="px-4 py-3 text-sm text-slate-500">Mar 15, 2024</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">Paid</span></td><td class="px-4 py-3 text-sm font-bold text-right">$1,200</td></tr>
+                                                    <tr><td class="px-4 py-3 text-sm font-medium">2nd Installment</td><td class="px-4 py-3 text-sm text-slate-500">Apr 15, 2024</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[10px] font-bold">Pending</span></td><td class="px-4 py-3 text-sm font-bold text-right">$1,100</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pipeline Board Module (Requirement #4) -->
+            <section x-show="currentModule === 'pipeline'" class="fade-in space-y-6 flex flex-col h-full overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Recruitment Pipeline</h2>
+                        <p class="text-slate-500 text-sm">Visualize and manage candidates through hiring stages.</p>
+                    </div>
+                    <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-2 px-3 border-r border-slate-100">
+                            <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                            <span class="text-xs font-bold text-slate-700" x-text="leads.length + ' Total'"></span>
+                        </div>
+                        <div class="flex -space-x-2">
+                            <template x-for="i in [1,2,3,4]" :key="i">
+                                <img :src="'https://i.pravatar.cc/50?u=' + i" class="w-7 h-7 rounded-lg border-2 border-white shadow-sm hover:z-20 transition-transform hover:-translate-y-1 cursor-pointer">
+                            </template>
+                            <div class="w-7 h-7 rounded-lg bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">+12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kanban Container -->
+                <div class="flex-1 overflow-x-auto pb-8 custom-scrollbar">
+                    <div class="flex gap-6 h-full min-w-max px-2">
+                        <template x-for="(stage, index) in kanbanStages" :key="stage">
+                            <div class="w-80 flex flex-col gap-5">
+                                <!-- Stage Header -->
+                                <div class="flex items-center justify-between px-3 py-2 bg-white rounded-2xl border border-slate-100 shadow-sm sticky top-0 z-10">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2.5 h-2.5 rounded-full" 
+                                             :class="[
+                                                'bg-indigo-500', 'bg-sky-500', 'bg-amber-500', 
+                                                'bg-purple-500', 'bg-rose-500', 'bg-orange-500', 'bg-emerald-500'
+                                             ][index % 7]"></div>
+                                        <h4 class="font-bold text-slate-800 text-sm" x-text="stage"></h4>
+                                    </div>
+                                    <span class="px-2.5 py-1 bg-slate-50 text-[10px] font-bold rounded-lg text-slate-500 border border-slate-100 shadow-inner" 
+                                          x-text="leads.filter(l => l.pipelineStage === stage).length"></span>
+                                </div>
+
+                                <!-- Cards Container -->
+                                <div class="kanban-column flex-1 space-y-4 p-2 bg-slate-100/30 rounded-[2rem] border border-dashed border-slate-200/60 min-h-[500px]"
+                                     :data-stage="stage">
+                                    <template x-for="lead in leads.filter(l => l.pipelineStage === stage)" :key="lead.id">
+                                        <div @click="openLeadDetail(lead)" 
+                                             :data-id="lead.id"
+                                             class="kanban-card bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100 cursor-pointer hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-100 hover:-translate-y-1 transition-all group relative overflow-hidden">
+                                            
+                                            <!-- Priority Indicator Bar -->
+                                            <div class="absolute top-0 left-0 w-1 h-full" 
+                                                 :class="lead.priority === 'High' ? 'bg-rose-500' : (lead.priority === 'Medium' ? 'bg-amber-400' : 'bg-slate-200')"></div>
+
+                                            <div class="flex justify-between items-start mb-4">
+                                                <div class="flex items-center gap-3">
+                                                    <img :src="lead.avatar" class="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform">
+                                                    <div>
+                                                        <p class="text-sm font-bold text-slate-800" x-text="lead.name"></p>
+                                                        <p class="text-[10px] text-slate-400 font-medium" x-text="lead.location"></p>
+                                                    </div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-md border" 
+                                                      :class="lead.priority === 'High' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-slate-50 text-slate-400 border-slate-100'"
+                                                      x-text="lead.priority"></span>
+                                            </div>
+
+                                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                                <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-bold rounded-lg" x-text="lead.visa"></span>
+                                                <span class="px-2 py-1 bg-slate-50 text-slate-500 text-[9px] font-bold rounded-lg" x-text="lead.source"></span>
+                                            </div>
+
+                                            <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                                                <div class="flex items-center gap-1.5">
+                                                    <i data-lucide="clock" class="w-3 h-3 text-slate-300"></i>
+                                                    <span class="text-[10px] font-bold text-slate-400" x-text="lead.lastActive"></span>
+                                                </div>
+                                                <div class="flex items-center gap-1.5 bg-slate-50 pl-1 pr-2 py-1 rounded-lg">
+                                                    <img :src="'https://ui-avatars.com/api/?name=' + lead.assignedTo" class="w-4 h-4 rounded shadow-sm">
+                                                    <span class="text-[9px] font-bold text-slate-500 truncate max-w-[50px]" x-text="lead.assignedTo.split(' ')[0]"></span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Interactive Overlay Icon -->
+                                            <div class="absolute -right-1 bottom-8 opacity-0 group-hover:opacity-100 group-hover:right-3 transition-all duration-300">
+                                                <div class="w-8 h-8 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-center">
+                                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- Empty State Indicator -->
+                                    <template x-if="leads.filter(l => l.pipelineStage === stage).length === 0">
+                                        <div class="flex flex-col items-center justify-center py-20 opacity-30 grayscale scale-90">
+                                            <i data-lucide="package-open" class="w-12 h-12 text-slate-300 mb-2"></i>
+                                            <p class="text-xs font-bold text-slate-400">Empty Stage</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team Management Module -->
+            <section x-show="currentModule === 'team'" class="fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Team Management</h2>
+                        <p class="text-slate-500 text-sm">Manage recruiter accounts and system permissions.</p>
+                    </div>
+                    <button @click="showAddTeamModal = true" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        Add Member
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" x-model="teamFilters.search" placeholder="Search team members..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-50 transition-all">
+                    </div>
+                    <select x-model="teamFilters.role" class="px-4 py-2 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-50">
+                        <option value="All">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Recruiter">Recruiter</option>
+                        <option value="Executive">Executive</option>
+                    </select>
+                </div>
+
+                <!-- Team Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <template x-for="member in filteredTeam()" :key="member.id">
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group overflow-hidden relative">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="relative">
+                                    <img :src="member.avatar" class="w-16 h-16 rounded-2xl object-cover">
+                                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-lg" x-text="member.name"></h4>
+                                    <p class="text-xs text-slate-400 font-medium" x-text="member.email"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                                <span class="px-3 py-1 rounded-lg text-[10px] font-bold border uppercase tracking-widest"
+                                      :class="member.role === 'Admin' ? 'bg-purple-100 text-purple-700 border-purple-200' : (member.role === 'Recruiter' ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200')"
+                                      x-text="member.role"></span>
+                                <div class="flex gap-2">
+                                    <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                                        <i data-lucide="shield-off" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- Services Module (Requirement #6) -->
+            <section x-show="currentModule === 'services'" class="fade-in space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Service Management</h2>
+                    <p class="text-slate-500">Configure recruitment packages and service charges.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
+                            Create New Service
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 space-y-1.5">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Service Name</label>
+                                <input type="text" placeholder="e.g. Premium Executive Search" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Upfront Amount ($)</label>
+                                <input type="number" placeholder="500" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Post-Job Charges (%)</label>
+                                <input type="number" placeholder="15" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                            </div>
+                            <div class="sm:col-span-2 space-y-3">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Service Inclusions (What will you do?)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="e.g. Resume Optimization" class="flex-1 px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                                    <button class="px-4 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors">
+                                        <i data-lucide="plus" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg border border-slate-200">
+                                        Resume Review <i data-lucide="x" class="w-3 h-3 cursor-pointer"></i>
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg border border-slate-200">
+                                        3 Mock Interviews <i data-lucide="x" class="w-3 h-3 cursor-pointer"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2 flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-700">Installment Option</p>
+                                    <p class="text-xs text-slate-400">Allow candidates to pay in chunks.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:-translate-y-0.5 transition-all">Create Service</button>
+                    </div>
+
+                    <!-- Active Services List -->
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2">Active Services</h4>
+                        <template x-for="i in [1,2,3]" :key="i">
+                            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-indigo-200 transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i data-lucide="package" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">Premium Headhunting</p>
+                                        <p class="text-xs text-slate-400">Upfront: $1,000 | Comm: 20%</p>
+                                    </div>
+                                </div>
+                                <button class="p-2 text-slate-300 hover:text-rose-500 rounded-lg transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment Module (Requirement #7) -->
+            <section x-show="currentModule === 'payments'" class="fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Financial Tracking</h2>
+                        <p class="text-slate-500">Monitor payments, installments, and collections.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm flex items-center gap-2">
+                            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Collected</span>
+                            <span class="text-sm font-bold text-emerald-600">$84,200</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" 
+                               x-model="paymentFilters.search"
+                               placeholder="Search candidate name or transaction ID..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-50 rounded-2xl transition-all">
+                    </div>
+                    <div class="flex gap-2">
+                        <select x-model="paymentFilters.status" 
+                                class="pl-4 pr-10 py-2.5 bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-50 rounded-2xl appearance-none text-sm font-semibold text-slate-700 transition-all">
+                            <option value="All">All Status</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                        <button @click="paymentFilters = { search: '', status: 'All' }" 
+                                class="px-4 py-2.5 bg-slate-100 text-slate-500 rounded-2xl hover:bg-slate-200 transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 border-b border-slate-100">
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Transaction ID</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Candidate</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Service</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Amount</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Date</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Installments</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <template x-for="p in filteredPayments()" :key="p.id">
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-xs font-bold text-slate-400" x-text="'#TRX-' + (1000 + p.id)"></td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-bold text-slate-800" x-text="p.candidate"></p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-xs font-semibold text-slate-500" x-text="p.service"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-bold text-slate-800" x-text="'$' + p.amount"></td>
+                                        <td class="px-6 py-4 text-xs font-medium text-slate-500" x-text="p.date"></td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-indigo-500" :style="p.installments === 'Paid' ? 'width: 100%' : 'width: 75%'"></div>
+                                                </div>
+                                                <span class="text-[10px] font-bold text-slate-400" x-text="p.installments"></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 border-l border-transparent transition-colors">
+                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border" 
+                                                  :class="p.status === 'Paid' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200'"
+                                                  x-text="p.status"></span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Empty State for Payments -->
+                    <template x-if="filteredPayments().length === 0">
+                        <div class="py-20 flex flex-col items-center justify-center text-slate-400">
+                            <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 transition-transform hover:scale-110">
+                                <i data-lucide="search-x" class="w-8 h-8 opacity-20"></i>
+                            </div>
+                            <p class="font-bold text-slate-500">No transactions found</p>
+                            <p class="text-sm">Try adjusting your search or filters.</p>
+                            <button @click="paymentFilters = { search: '', status: 'All' }" class="mt-4 text-indigo-600 font-bold text-sm hover:underline">Clear all filters</button>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- Reports Module (Requirement #8) -->
+            <section x-show="currentModule === 'reports'" class="fade-in space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Analytics & Reports</h2>
+                    <p class="text-slate-500">Overview of lead conversion and financial growth.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-6">Monthly Revenue Stream</h3>
+                        <div class="h-[300px]">
+                            <canvas id="reportsRevenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-6">Conversion Funnel</h3>
+                        <div class="space-y-6">
+                            <template x-for="stage in ['Leads', 'Screening', 'Technical', 'HR', 'Closed']" :key="stage">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs font-bold uppercase tracking-wider">
+                                        <span class="text-slate-500" x-text="stage"></span>
+                                        <span class="text-slate-800" x-text="Math.floor(Math.random() * 100) + '%'"></span>
+                                    </div>
+                                    <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-indigo-500 rounded-full" :style="'width: ' + (100 - (['Leads', 'Screening', 'Technical', 'HR', 'Closed'].indexOf(stage) * 20)) + '%'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="module-container"></div>
+
+        </div>
+
+    </main>
+
+    <!-- Side Over: Add New Lead (Requirement #2) -->
+    <div x-show="showAddLeadModal" 
+         class="fixed inset-0 z-[70] overflow-hidden" 
+         style="display: none;"
+         x-transition:enter="transition ease-in-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in-out duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showAddLeadModal = false"></div>
+        <div class="absolute inset-y-0 right-0 max-w-2xl w-full bg-white shadow-2xl flex flex-col transform transition ease-in-out duration-500"
+             x-transition:enter="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="translate-x-0"
+             x-transition:leave-end="translate-x-full">
+            
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Add New Lead</h3>
+                    <p class="text-sm text-slate-400">Fill in the details to create a candidate profile.</p>
+                </div>
+                <button @click="showAddLeadModal = false" class="p-2 text-slate-400 hover:text-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <!-- Form Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">First Name</label>
+                        <input type="text" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Last Name</label>
+                        <input type="text" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Phone</label>
+                        <input type="tel" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Email</label>
+                        <input type="email" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Country</label>
+                        <select class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                            <option>USA</option><option>UK</option><option>India</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">State / City</label>
+                        <input type="text" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+
+                    <div class="sm:col-span-2 space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">LinkedIn URL</label>
+                        <input type="url" placeholder="https://linkedin.com/in/..." class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Visa Status</label>
+                        <input type="text" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">EAD Authorized</label>
+                        <div class="flex items-center gap-6 py-2.5">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="ead" class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm font-semibold text-slate-600">Yes</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="ead" class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm font-semibold text-slate-600">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-2 space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Portfolio URL</label>
+                        <input type="url" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lead Source</label>
+                        <select class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                            <option>LinkedIn</option><option>Referral</option><option>Indeed</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Schedule Time</label>
+                        <input type="datetime-local" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                    </div>
+
+                    <div class="sm:col-span-2 space-y-1.5">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Chat History / Remarks</label>
+                        <textarea rows="3" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 border-t border-slate-100 flex items-center justify-end gap-4 bg-slate-50/50">
+                <button @click="showAddLeadModal = false" class="px-6 py-2.5 font-bold text-slate-500 hover:text-slate-800 transition-colors">Cancel</button>
+                <button class="bg-indigo-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:-translate-y-0.5 transition-all">Save Lead</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Closed Lead Status (Requirement #3) -->
+    <div x-show="modalOpen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" x-transition.opacity>
+        <div @click.away="modalOpen = false" class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-8 fade-in flex flex-col gap-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800">Close Deal</h3>
+                <p class="text-sm text-slate-400 mt-1">Assign service and payment plan for <span class="font-bold text-indigo-600" x-text="selectedLead?.name"></span></p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Select Service</label>
+                    <select class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                        <option>Premium Headhunting</option>
+                        <option>Standard Recruitment</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Payment Plan</label>
+                    <select class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                        <option>Full Payment</option>
+                        <option>Installments (4 Months)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button @click="modalOpen = false" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Cancel</button>
+                <button @click="modalOpen = false; currentModule = 'leads'" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-100 hover:shadow-emerald-200 transition-all">Confirm Closure</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Over: Add Team Member -->
+    <div x-show="showAddTeamModal" 
+         class="fixed inset-0 z-[75] overflow-hidden" 
+         style="display: none;"
+         x-transition:enter="transition ease-in-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in-out duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showAddTeamModal = false"></div>
+        <div class="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col transform transition ease-in-out duration-500"
+             x-transition:enter="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="translate-x-0"
+             x-transition:leave-end="translate-x-full">
+            
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Add Team Member</h3>
+                    <p class="text-sm text-slate-400">Specify details for the new account.</p>
+                </div>
+                <button @click="showAddTeamModal = false" class="p-2 text-slate-400 hover:text-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-6">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
+                    <input type="text" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</label>
+                    <input type="email" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Initial Password</label>
+                    <div class="relative">
+                        <input type="password" value="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                        <i data-lucide="eye" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 cursor-pointer"></i>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">System Role</label>
+                    <select class="w-full px-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-4 focus:ring-indigo-50 rounded-xl transition-all">
+                        <option>Recruiter</option><option>Admin</option><option>Executive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="p-8 border-t border-slate-100 flex items-center justify-end gap-4 bg-slate-50/30">
+                <button @click="showAddTeamModal = false" class="px-6 py-2.5 font-bold text-slate-500 hover:text-slate-800 transition-colors text-sm">Cancel</button>
+                <button @click="showAddTeamModal = false" class="bg-indigo-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:shadow-indigo-200 hover:-translate-y-px transition-all text-sm">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Refresh icons after Alpine render if needed
+        document.addEventListener('alpine:initialized', () => {
+            lucide.createIcons();
+            initCharts();
+        });
+    </script>
+</body>
+</html>
